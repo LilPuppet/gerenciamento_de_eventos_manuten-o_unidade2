@@ -1,0 +1,52 @@
+@startuml Gerenciamento de Eventos
+
+class Usuario{
+    - nome: String
+    - cpf: String
+    - email: String
+    - login: String
+    - senha: String
+}
+
+class Evento{
+    - titulo: String
+    - dataInicio: DateTime
+    - dataFim: DateTime
+    - descricao: String
+    - orcamento: float
+    - status: Status
+    - observacoes: String
+}
+
+Evento : + calcularCustos() : float
+
+class Local{
+    - nome: String
+    - logradouro: String
+    - numero: int
+    - bairro: String
+    - cidade: String
+    - estado: String
+    - cep: String
+    - capacidade: int
+}
+
+class Custo{
+    - descricao: String
+    - valor: float
+}
+
+enum Status {
+    PLANEJADO
+    CONFIRMADO
+    EM_ANDAMENTO
+    FINALIZADO
+    CANCELADO
+}
+
+Usuario "1" -- "0..*" Evento
+Usuario "1" -- "0..*" Local
+Evento "1" -- "0..*" Custo
+Evento "0..*" -- "1" Local
+
+@enduml

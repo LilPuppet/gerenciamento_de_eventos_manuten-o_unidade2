@@ -1,0 +1,37 @@
+# Django e DRF principais
+Django==4.2.3
+djangorestframework==3.14.0
+django-cors-headers==4.3.1
+
+# Documentação da API
+drf-spectacular==0.26.4
+drf-yasg==1.21.7
+
+# Segurança
+django-environ==0.11.2
+python-dotenv==1.0.0
+django-filter==23.5
+
+# Testes
+pytest==8.1.1
+pytest-django==4.8.0
+coverage==7.4.1
+
+# Banco de Dados e Cache
+psycopg2-binary==2.9.9
+django-redis==5.4.0
+
+# Produção
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Utilitários
+Pillow==10.2.0  # Para processamento de imagens
+django-storages==1.14.2  # Para armazenamento em nuvem
+celery==5.3.6  # Para tarefas assíncronas
+
+# Dependências
+asgiref==3.7.2
+pytz==2023.3
+sqlparse==0.4.4
+typing_extensions==4.7.1
