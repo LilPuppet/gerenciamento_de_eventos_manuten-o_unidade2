@@ -1,6 +1,7 @@
 # Gerenciamento de Eventos
 
 Um projeto em Python para o gerenciamento de eventos, utilizando o framework Django.
+Feito por Renan, Neilla e Felype. Atualizado por Lavínia, Yure e Romailson.
 
 ## 🛠️ Tecnologias Utilizadas
 
