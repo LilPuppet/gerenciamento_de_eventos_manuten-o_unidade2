@@ -27,10 +27,7 @@ class LocalViewSet(viewsets.ModelViewSet):
         except PermissionError as e:
             return Response({'Você não tem permissão para executar esta ação':
                             str(e)}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:
-            # Temos que remover essa excessão e substituir por específicas
-            return Response({'Não foi possível retornar o usuário': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
 
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao local durante a criação"""
@@ -50,9 +47,7 @@ class LocalViewSet(viewsets.ModelViewSet):
         except KeyError:
             return Response({"Erro": "Algum dado faltando ou errado."},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:  # remover e substiruir por específicas
-            return Response({'Não foi possível criar a associação': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
 
 
 class EventoViewSet(viewsets.ModelViewSet):
@@ -71,9 +66,7 @@ class EventoViewSet(viewsets.ModelViewSet):
         except PermissionError as e:
             return Response({'Você não tem permissão para executar esta ação':
                              str(e)}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:  # remover e substituir
-            return Response({'Não foi possível retornar o usuário': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
 
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao evento durante a criação"""
@@ -93,12 +86,10 @@ class EventoViewSet(viewsets.ModelViewSet):
         except KeyError:
             return Response({"Erro": "Algum dado faltando ou errado."},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:  # remover e substituir
-            return Response({'Não foi possível criar a associação': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
 
     @action(detail=True, methods=['GET'], url_path="custos")
-    def calcular_custos(self, request, pk=None):  # não sei como resolver esse
+    def calcular_custos(self, request, pk=None):  # ignorar
         """Endpoint personalizado para calcular custos totais do evento
 
         Retorna uma lista de custos e o valor total acumulado.
@@ -117,7 +108,8 @@ class EventoViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_200_OK
                 )
             total = sum(custo.valor for custo in custos)
-            custo_serializer = CustoSerializer(custos, many=True, context={'request': request})
+            custo_serializer = CustoSerializer(custos, many=True,
+                                               context={'request': request})
 
             return Response(
                 {'custos': custo_serializer.data, 'total': total}, 
@@ -131,9 +123,7 @@ class EventoViewSet(viewsets.ModelViewSet):
         except PermissionError as pe:
             return Response({'Você não tem permissão para executar esta ação':
                             str(pe)}, status=status.HTTP_403_FORBIDDEN)
-        except Exception as e:  # remover e substituir
-            return Response({'Não foi possível calcular os custos': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
 
 
 class CustoViewSet(viewsets.ModelViewSet):
@@ -159,6 +149,4 @@ class CustoViewSet(viewsets.ModelViewSet):
         except KeyError:
             return Response({"Erro": "Algum dado faltando ou errado."},
                             status=status.HTTP_400_BAD_REQUEST)
-        except Exception as e:  # remover e substituir
-            return Response({'Não foi possível retornar os custos': str(e)},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Temos que por excessões mais específicas
