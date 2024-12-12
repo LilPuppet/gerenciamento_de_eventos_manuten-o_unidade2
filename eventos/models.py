@@ -24,7 +24,7 @@ class Local(models.Model):
             f"CEP: {self.cep}"
         )
 
-    class Meta:  # pesquisar como resolver
+    class Meta:
         """ Como os verbos do model devem se comportar"""
         verbose_name = "Local"
         verbose_name_plural = "Locais"
@@ -53,7 +53,7 @@ class Evento(models.Model):
     def __str__(self):
         return f"Evento {self.titulo}"
 
-    class Meta:  # pesquisar como resolver
+    class Meta:
         """ Como os verbos do model devem se comportar"""
         verbose_name = "Evento"
         verbose_name_plural = "Eventos"
@@ -68,7 +68,7 @@ class Custo(models.Model):
     def __str__(self):
         return f"{self.descricao} - {self.valor}"
 
-    class Meta:  # pesquisar como resolver
+    class Meta:
         """ Como os verbos do model devem se comportar"""
         verbose_name = "Custo"
         verbose_name_plural = "Custos"
