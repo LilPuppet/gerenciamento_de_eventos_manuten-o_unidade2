@@ -12,11 +12,19 @@ router.register(r'eventos', EventoViewSet, basename='eventos')
 router.register(r'custos', CustoViewSet, basename='custos')
 router.register(r'usuarios', UsuarioViewSet, basename='usuarios')
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path("api/token-auth/", views.obtain_auth_token),
 
-    path('api/', include(router.urls))
+    path('api/', include(router.urls)),
+
+    path('sentry-debug/', trigger_error),
+
 ]
-    
+
