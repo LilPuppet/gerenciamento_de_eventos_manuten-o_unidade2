@@ -1,4 +1,5 @@
 """ Neste módulo temos a implementação dos viewsets criadas na api"""
+# pylint: disable=no-member, too-many-ancestors, too-many-return-statements
 # Importações do Django REST framework
 from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
@@ -24,8 +25,8 @@ class LocalViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Retorna apenas locais do usuário autenticado"""
-        try:  # esse erro é normal e deve ser ignorado
-            return Local.objects.filter(usuario=self.request.user)  
+        try:
+            return Local.objects.filter(usuario=self.request.user)
         except PermissionError as e:
             return Response({'Erro de Permissão':
                             str(e)}, status=status.HTTP_403_FORBIDDEN)
@@ -33,7 +34,7 @@ class LocalViewSet(viewsets.ModelViewSet):
             return Response({'Você não tem permissão': str(e)},
                             status=status.HTTP_403_FORBIDDEN)
         except NotAuthenticated as e:
-            return Response({'Você não está autenticado ainda': str(e)}, 
+            return Response({'Você não está autenticado ainda': str(e)},
                             status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist as e:
             return Response({'Objeto não encontrado': str(e)},
@@ -64,8 +65,8 @@ class LocalViewSet(viewsets.ModelViewSet):
             return Response({"Preenchimento incompleto."},
                             status=status.HTTP_400_BAD_REQUEST)
         except PermissionDenied as pe:
-            return Response({'Você não tem permissão para executar': str(pe)},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({'Você não tem a permissão para executar':
+                            str(pe)}, status=status.HTTP_403_FORBIDDEN)
         except NotAuthenticated as e:
             return Response({'Você não está autenticado ainda': str(e)},
                             status=status.HTTP_401_UNAUTHORIZED)
@@ -88,19 +89,19 @@ class EventoViewSet(viewsets.ModelViewSet):
         try:  # erro normal
             return Evento.objects.filter(usuario=self.request.user)
         except PermissionError as e:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Você não tem permissão para executar isso':
                              str(e)}, status=status.HTTP_403_FORBIDDEN)
         except PermissionDenied as e:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Você não tem permissão para executar isto':
                              str(e)}, status=status.HTTP_403_FORBIDDEN)
         except NotAuthenticated as e:
-            return Response({'Você não está autenticado': str(e)}, 
+            return Response({'Usuário não está autenticado': str(e)},
                             status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist as e:
-            return Response({'Evento não encontrado': str(e)},
+            return Response({'Evento não-encontrado': str(e)},
                             status=status.HTTP_404_NOT_FOUND)
         except ValueError as e:
-            return Response({"Valor inválido": str(e)}, 
+            return Response({"Valor inválido": str(e)},
                             status=status.HTTP_400_BAD_REQUEST)
         except KeyError as e:
             return Response({"Faltando chave ou dado inválido": str(e)},
@@ -116,26 +117,26 @@ class EventoViewSet(viewsets.ModelViewSet):
             return Response({'Não foi possível validar este usuário': str(ve)},
                             status=status.HTTP_400_BAD_REQUEST)
         except PermissionError as pe:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Você não tem permissão para executar':
                             str(pe)}, status=status.HTTP_403_FORBIDDEN)
         except ValueError:
             return Response({"Erro": "Dados inválidos!"},
                             status=status.HTTP_409_CONFLICT)
         except KeyError:
-            return Response({"Erro": "Algum dado faltando ou errado."},
-                            status=status.HTTP_400_BAD_REQUEST)      
+            return Response({"Erro": "Algum dado faltando ou incorreto."},
+                            status=status.HTTP_400_BAD_REQUEST)
         except PermissionDenied as pe:
             return Response({'Você não tem permissão': str(pe)},
                             status=status.HTTP_403_FORBIDDEN)
         except NotAuthenticated as e:
-            return Response({'Você não está autenticado': str(e)},
+            return Response({'Usuário não está autenticado': str(e)},
                             status=status.HTTP_401_UNAUTHORIZED)
         except ObjectDoesNotExist as e:
             return Response({'Evento não encontrado': str(e)},
                             status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['GET'], url_path="custos")
-    def calcular_custos(self, request, pk=None):  # ignorar
+    def calcular_custos(self, request):  # ignorar
         """Endpoint personalizado para calcular custos totais do evento
 
         Retorna uma lista de custos e o valor total acumulado.
@@ -144,7 +145,7 @@ class EventoViewSet(viewsets.ModelViewSet):
             evento = self.get_object()
             if not evento:
                 return Response(
-                    {'error': 'Evento não encontrado.'}, 
+                    {'error': 'Evento não encontrado.'},
                     status=status.HTTP_404_NOT_FOUND
                 )
             custos = Custo.objects.filter(evento=evento)  # pode ignorar
@@ -158,16 +159,16 @@ class EventoViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
 
             return Response(
-                {'custos': custo_serializer.data, 'total': total}, 
+                {'custos': custo_serializer.data, 'total': total},
                 status=status.HTTP_200_OK
             )
         except Evento.DoesNotExist:  # pode ignorar
             return Response(
-                {'error': 'Evento não encontrado.'}, 
+                {'error': 'Evento não encontrado.'},
                 status=status.HTTP_404_NOT_FOUND
             )
         except PermissionError as pe:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Você não tem permissão para executar':
                             str(pe)}, status=status.HTTP_403_FORBIDDEN)
         except ValidationError as ve:
             return Response({'Não foi possível validar este evento': str(ve)},
