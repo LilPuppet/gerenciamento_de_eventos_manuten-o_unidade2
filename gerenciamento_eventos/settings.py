@@ -10,8 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-import sentry_sdk
 from pathlib import Path
+import sentry_sdk
 
 
 
@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-o_hb*42bytt24b#se4@2aro7%g*^v-5!8uroc_=v=2yowj&p#t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['https://yurethalles.pythonanywhere.com/']
 
 
 # Application definition
@@ -142,7 +142,11 @@ REST_FRAMEWORK = {
 }
 
 sentry_sdk.init(
-    dsn="https://6082f5ebfddc84c1419f355f4c637f9d@o4508456896823296.ingest.us.sentry.io/4508457038708736",
+    dsn=(
+        "https://6082f5ebfddc84c1419f355f4c637f9d"
+        "@o4508456896823296.ingest.us.sentry.io"
+        "/4508457038708736"
+    ),
     # Set traces_sample_rate to 1.0 to capture 100%
     # of transactions for tracing.
     traces_sample_rate=1.0,
