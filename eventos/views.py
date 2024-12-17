@@ -4,7 +4,8 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied, NotAuthenticated
+from django.core.exceptions import ObjectDoesNotExist
 
 # Importações locais
 from .models import Local, Evento, Custo
@@ -25,9 +26,23 @@ class LocalViewSet(viewsets.ModelViewSet):
         try:  # esse erro é normal e deve ser ignorado
             return Local.objects.filter(usuario=self.request.user)  
         except PermissionError as e:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Erro de Permissão':
                             str(e)}, status=status.HTTP_403_FORBIDDEN)
-            # Temos que por excessões mais específicas
+        except PermissionDenied as e:
+            return Response({'Você não tem permissão': str(e)},
+                            status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado ainda': str(e)}, 
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist as e:
+            return Response({'Objeto não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({"Valor inválido": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except KeyError as e:
+            return Response({"Faltando chave ou dado inválido": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao local durante a criação"""
@@ -39,15 +54,23 @@ class LocalViewSet(viewsets.ModelViewSet):
             return Response({'Não foi possível validar este usuário': str(ve)},
                             status=status.HTTP_400_BAD_REQUEST)
         except PermissionError as pe:
-            return Response({'Você não tem permissão para executar esta ação':
+            return Response({'Você não tem permissão para isto':
                             str(pe)}, status=status.HTTP_403_FORBIDDEN)
         except ValueError:
-            return Response({"Erro": "Dados inválidos!"},
+            return Response({"Erro": "Dados de Local inválidos!"},
                             status=status.HTTP_409_CONFLICT)
         except KeyError:
-            return Response({"Erro": "Algum dado faltando ou errado."},
+            return Response({"Preenchimento incompleto."},
                             status=status.HTTP_400_BAD_REQUEST)
-            # Temos que por excessões mais específicas
+        except PermissionDenied as pe:
+            return Response({'Você não tem permissão para executar': str(pe)},
+                            status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado ainda': str(e)},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist as e:
+            return Response({'Local não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
 
 
 class EventoViewSet(viewsets.ModelViewSet):
@@ -66,7 +89,21 @@ class EventoViewSet(viewsets.ModelViewSet):
         except PermissionError as e:
             return Response({'Você não tem permissão para executar esta ação':
                              str(e)}, status=status.HTTP_403_FORBIDDEN)
-            # Temos que por excessões mais específicas
+        except PermissionDenied as e:
+            return Response({'Você não tem permissão para executar esta ação':
+                             str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado': str(e)}, 
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist as e:
+            return Response({'Evento não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
+        except ValueError as e:
+            return Response({"Valor inválido": str(e)}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+        except KeyError as e:
+            return Response({"Faltando chave ou dado inválido": str(e)},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao evento durante a criação"""
@@ -85,8 +122,16 @@ class EventoViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_409_CONFLICT)
         except KeyError:
             return Response({"Erro": "Algum dado faltando ou errado."},
-                            status=status.HTTP_400_BAD_REQUEST)
-            # Temos que por excessões mais específicas
+                            status=status.HTTP_400_BAD_REQUEST)      
+        except PermissionDenied as pe:
+            return Response({'Você não tem permissão': str(pe)},
+                            status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado': str(e)},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist as e:
+            return Response({'Evento não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['GET'], url_path="custos")
     def calcular_custos(self, request, pk=None):  # ignorar
@@ -123,7 +168,24 @@ class EventoViewSet(viewsets.ModelViewSet):
         except PermissionError as pe:
             return Response({'Você não tem permissão para executar esta ação':
                             str(pe)}, status=status.HTTP_403_FORBIDDEN)
-            # Temos que por excessões mais específicas
+        except ValidationError as ve:
+            return Response({'Não foi possível validar este evento': str(ve)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except PermissionDenied as pe:
+            return Response({'Você não tem permissão para calcular': str(pe)},
+                            status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado': str(e)},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ValueError as ve:
+            return Response({'Dados inválidos!': str(ve)},
+                            status=status.HTTP_409_CONFLICT)
+        except KeyError as ke:
+            return Response({"Algum dado faltando ou errado.": str(ke)},
+                            status=status.HTTP_400_BAD_REQUEST)
+        except ObjectDoesNotExist as e:
+            return Response({'Evento não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
 
 
 class CustoViewSet(viewsets.ModelViewSet):
@@ -149,4 +211,12 @@ class CustoViewSet(viewsets.ModelViewSet):
         except KeyError:
             return Response({"Erro": "Algum dado faltando ou errado."},
                             status=status.HTTP_400_BAD_REQUEST)
-            # Temos que por excessões mais específicas socorro
+        except PermissionDenied as e:
+            return Response({'Você não tem permissão para executar esta ação':
+                            str(e)}, status=status.HTTP_403_FORBIDDEN)
+        except NotAuthenticated as e:
+            return Response({'Você não está autenticado': str(e)},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        except ObjectDoesNotExist as e:
+            return Response({'Custo ou evento não encontrado': str(e)},
+                            status=status.HTTP_404_NOT_FOUND)
