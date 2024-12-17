@@ -1,0 +1,10 @@
+repos:
+  - repo: https://github.com/pre-commit/mirrors-pylint.git
+    rev: v2.0.0
+    hooks:
+      - id: pylint
+        name: pylint
+        entry: pylint
+        language: system
+        types: [python]
+        args: [--disable=R]  # Desativa categorias específicas de mensagens do pylint
