@@ -26,6 +26,8 @@ Feito por Renan, Neilla e Felype. Atualizado por Lavínia, Yure e Romailson.
 1. Instale as dependências:
    ```bash
    pip install -r requirements.txt
+   pip install --upgrade "sentry-sdk[django]"
+
    ```
 2. Execute as migrações:
    ```bash
