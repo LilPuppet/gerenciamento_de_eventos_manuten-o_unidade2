@@ -46,7 +46,7 @@ class Evento(models.Model):
     status = models.CharField(choices=STATUS, default="PLANEJADO", max_length=12)
     dataInicio = models.DateTimeField()
     dataFim = models.DateTimeField()
-    observacoes = models.TextField(null=True)
+    observacoes = models.TextField(blank=True)
     local = models.ForeignKey(Local, on_delete=models.PROTECT)
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
 

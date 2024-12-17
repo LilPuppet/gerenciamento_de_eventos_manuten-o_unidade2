@@ -27,7 +27,8 @@ Feito por Renan, Neilla e Felype. Atualizado por Lavínia, Yure e Romailson.
    ```bash
    pip install -r requirements.txt
    pip install --upgrade "sentry-sdk[django]"
-
+   pip install pre-commit pylint
+   pre-commit install
    ```
 2. Execute as migrações:
    ```bash
