@@ -150,12 +150,14 @@ class LocalAPITests(APITestCase):
             "cep": "12345-678",
             "capacidade": 500,
         }
-        response = self.client.post(self.url_locais, self.local_data, format='json')
+        response = self.client.post(self.url_locais, self.local_data,
+                                    format='json')
         self.local_id = response.data["id"]
 
     def test_criar_local_sucesso(self):
         """Teste para criação de local autenticado"""
-        response = self.client.post(self.url_locais, self.local_data, format='json')
+        response = self.client.post(self.url_locais, self.local_data,
+                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["nome"], self.local_data["nome"])
 
@@ -168,7 +170,8 @@ class LocalAPITests(APITestCase):
     def test_criar_local_sem_autenticacao(self):
         """Teste de falha ao criar local sem autenticação"""
         self.client.force_authenticate(user=None)
-        response = self.client.post(self.url_locais, self.local_data, format='json')
+        response = self.client.post(self.url_locais, self.local_data,
+                                    format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_atualizar_local_put(self):
@@ -183,9 +186,12 @@ class LocalAPITests(APITestCase):
     def test_atualizar_local_patch(self):
         """Teste para atualizar parcialmente um local usando PATCH"""
         url = f"{self.url_locais}{self.local_id}/"
-        response = self.client.patch(url, {"nome": "Centro Parcialmente Atualizado"}, format='json')
+        response = self.client.patch(url, {"nome":
+                                           "Centro Parcialmente Atualizado"},
+                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["nome"], "Centro Parcialmente Atualizado")
+        self.assertEqual(response.data["nome"],
+                         "Centro Parcialmente Atualizado")
 
     def test_deletar_local(self):
         """Teste para deletar um local"""
@@ -211,7 +217,8 @@ class EventoAPITests(APITestCase):
         )
         self.client.force_authenticate(user=self.user)
         self.local = Local.objects.create(
-            nome="Centro de Convenções", logradouro="Rua Principal", numero=123,
+            nome="Centro de Convenções",
+            logradouro="Rua Principal", numero=123,
             bairro="Centro", cidade="Cidade X", estado="Estado Y",
             cep="12345-678", capacidade=500, usuario=self.user
         )
@@ -225,7 +232,8 @@ class EventoAPITests(APITestCase):
             "dataFim": "2024-12-25T18:00:00Z",
             "local": self.local.id,
         }
-        response = self.client.post(self.url_eventos, self.evento_data, format='json')
+        response = self.client.post(self.url_eventos, self.evento_data,
+                                    format='json')
         self.evento_id = response.data["id"]
 
     def test_atualizar_evento_put(self):
@@ -242,9 +250,10 @@ class EventoAPITests(APITestCase):
         url = f"{self.url_eventos}{self.evento_id}/"
         response = self.client.patch(url, {"titulo":
                                            "Evento Parcialmente Atualizado"},
-                                           format='json')
+                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["titulo"], "Evento Parcialmente Atualizado")
+        self.assertEqual(response.data["titulo"],
+                         "Evento Parcialmente Atualizado")
 
     def test_deletar_evento(self):
         """Teste para deletar um evento"""
@@ -270,13 +279,16 @@ class CustoAPITests(APITestCase):
         )
         self.client.force_authenticate(user=self.user)
         self.local = Local.objects.create(
-            nome="Centro de Convenções", logradouro="Rua Principal", numero=123,
+            nome="Centro de Convenções",
+            logradouro="Rua Principal", numero=123,
             bairro="Centro", cidade="Cidade X", estado="Estado Y",
             cep="12345-678", capacidade=500, usuario=self.user
         )
         self.evento = Evento.objects.create(
-            titulo="Evento de Teste", descricao="Descrição do evento", orcamento=1000.00,
-            status="PLANEJADO", dataInicio="2024-12-25T10:00:00Z", dataFim="2024-12-25T18:00:00Z",
+            titulo="Evento de Teste", descricao="Descrição do evento",
+            orcamento=1000.00,
+            status="PLANEJADO", dataInicio="2024-12-25T10:00:00Z",
+            dataFim="2024-12-25T18:00:00Z",
             local=self.local, usuario=self.user
         )
         self.url_custos = "http://127.0.0.1:8000/api/custos/"
@@ -285,7 +297,8 @@ class CustoAPITests(APITestCase):
             "valor": "500.00",
             "evento": self.evento.id,
         }
-        response = self.client.post(self.url_custos, self.custo_data, format='json')
+        response = self.client.post(self.url_custos, self.custo_data,
+                                    format='json')
         self.custo_id = response.data["id"]
 
     def test_atualizar_custo_put(self):
@@ -300,7 +313,8 @@ class CustoAPITests(APITestCase):
     def test_atualizar_custo_patch(self):
         """Teste para atualizar parcialmente um custo usando PATCH"""
         url = f"{self.url_custos}{self.custo_id}/"
-        response = self.client.patch(url, {"descricao": "Custo Parcial"}, format='json')
+        response = self.client.patch(url, {"descricao": "Custo Parcial"},
+                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["descricao"], "Custo Parcial")
 
