@@ -1,4 +1,5 @@
-""" Neste módulo temos a implementação dos viewsets criadas na api"""
+""" Neste módulo temos a implementação dos viewsets, com
+o auxílio do services, criadas na api"""
 # pylint: disable=no-member, too-many-ancestors, too-many-return-statements
 # Importações do Django REST framework
 from rest_framework import viewsets, status
@@ -10,8 +11,12 @@ from rest_framework.exceptions import NotAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
 
 # Importações locais
-from .models import Local, Evento, Custo
+from .models import Evento, Custo
 from .serializers import LocalSerializer, EventoSerializer, CustoSerializer
+from .services import (
+    get_user_locals, create_local, get_user_eventos, create_evento,
+    calcular_custos, get_user_custos
+)
 
 
 class LocalViewSet(viewsets.ModelViewSet):
@@ -26,7 +31,7 @@ class LocalViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         """Retorna apenas locais do usuário autenticado"""
         try:
-            return Local.objects.filter(usuario=self.request.user)
+            return get_user_locals(self.request.user)
         except PermissionError as e:
             return Response({'Erro de Permissão':
                             str(e)}, status=status.HTTP_403_FORBIDDEN)
@@ -49,9 +54,7 @@ class LocalViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao local durante a criação"""
         try:
-            if not serializer.is_valid():
-                raise ValidationError("Dados incompletos ou inválidos.")
-            serializer.save(usuario=self.request.user)
+            create_local(serializer, self.request.user)
         except ValidationError as ve:
             return Response({'Não foi possível validar este usuário': str(ve)},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -86,8 +89,8 @@ class EventoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Retorna apenas eventos do usuário autenticado"""
-        try:  # erro normal
-            return Evento.objects.filter(usuario=self.request.user)
+        try:
+            return get_user_eventos(self.request.user)
         except PermissionError as e:
             return Response({'Você não tem permissão para executar isso':
                              str(e)}, status=status.HTTP_403_FORBIDDEN)
@@ -110,9 +113,7 @@ class EventoViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """Associa o usuário autenticado ao evento durante a criação"""
         try:
-            if not serializer.is_valid():
-                raise ValidationError("Dados incompletos ou inválidos.")
-            serializer.save(usuario=self.request.user)
+            create_evento(serializer, self.request.user)
         except ValidationError as ve:
             return Response({'Não foi possível validar este usuário': str(ve)},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -143,23 +144,15 @@ class EventoViewSet(viewsets.ModelViewSet):
         """
         try:
             evento = self.get_object()
-            if not evento:
-                return Response(
-                    {'error': 'Evento não encontrado.'},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-            custos = Custo.objects.filter(evento=evento)  # pode ignorar
-            if not custos.exists():
-                return Response(
-                    {'message': 'Nenhum custo associado a este evento.'},
-                    status=status.HTTP_200_OK
-                )
-            total = sum(custo.valor for custo in custos)
-            custo_serializer = CustoSerializer(custos, many=True,
-                                               context={'request': request})
+            custos_data = calcular_custos(evento)
+
+            custo_serializer = CustoSerializer(
+                custos_data['custos'], many=True, context={'request': request}
+            )
 
             return Response(
-                {'custos': custo_serializer.data, 'total': total},
+                {'custos': custo_serializer.data,
+                 'total': custos_data['total']},
                 status=status.HTTP_200_OK
             )
         except Evento.DoesNotExist:  # pode ignorar
@@ -202,8 +195,8 @@ class CustoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Retorna apenas custos dos eventos do usuário autenticado"""
-        try:  # pode ignorar esse
-            return Custo.objects.filter(evento__usuario=self.request.user)
+        try:
+            return get_user_custos(self.request.user)
         except PermissionError as e:
             return Response({'Você não tem permissão para executar esta ação':
                             str(e)}, status=status.HTTP_403_FORBIDDEN)
